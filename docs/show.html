@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PxL's Json Pretty</title>
+    <style>
+      pre.pretty-json {
+        padding: 5px;
+        margin: 5px;
+      }
+      pre.pretty-json .string {
+        color: green;
+      }
+      pre.pretty-json .number {
+        color: darkorange;
+      }
+      pre.pretty-json .boolean {
+        color: blue;
+      }
+      pre.pretty-json .null {
+        color: magenta;
+      }
+      pre.pretty-json .key {
+        color: red;
+      }
+      body {
+        padding: 0;
+        margin: 0;
+      }
+      .toggle {
+        position: fixed;
+        top: 0;
+        right: 0;
+        padding: 0.3em;
+        margin: 0.2em;
+        background-color: lightskyblue;
+        border-radius: 0.3em;
+        border: 1px dotted navy;
+      }
+      .main {
+        padding: 0;
+        margin: 0;
+      }
+      .src {
+        background-color: darkblue;
+        color: gold;
+        height: calc(100vh -1em);
+        width: calc(100vw -1em);
+        padding: 0.5em;
+      }
+      .pretty {
+        background-color: white;
+        height: calc(100vh - 1em);
+        width: calc(100vw - 1em);
+        display: none;
+        padding: 0.5em;
+      }
+      textarea {
+        background-color: darkblue;
+        color: gold;
+        height: calc(100vh - 3em);
+        width: calc(100vw - 3em);
+        padding: 0.5em;
+      }
+    </style>
+    <script>
+      function syntaxHighlight(inJson) {
+        inJson = inJson
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+        return inJson.replace(
+          /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+          function (match) {
+            var cls = "number";
+            if (/^"/.test(match)) {
+              if (/:$/.test(match)) {
+                cls = "key";
+              } else {
+                cls = "string";
+              }
+            } else if (/true|false/.test(match)) {
+              cls = "boolean";
+            } else if (/null/.test(match)) {
+              cls = "null";
+            }
+            return '<span class="' + cls + '">' + match + "</span>";
+          }
+        );
+      }
+      window.addEventListener("load", (event) => {
+        event.preventDefault();
+        console.log("Loaded");
+        const elSrc = document.getElementById("src");
+        const elPretty = document.getElementById("pretty");
+        const elToggle = document.getElementById("toggle");
+        const elTa = document.getElementById("ta");
+        let showingSrc = true;
+        const toggleHandler = (event) => {
+          event.preventDefault();
+          showingSrc = !showingSrc;
+          if (showingSrc) {
+            elSrc.style.display = "block";
+            elPretty.style.display = "none";
+            elToggle.innerHTML = "Show Pretty";
+            elToggle.style.display = "block";
+          } else {
+            elSrc.style.display = "none";
+            elPretty.style.display = "block";
+            // elToggle.style.display = "none";
+            elToggle.innerHTML = "Show Source";
+            try {
+              let pjson = syntaxHighlight(
+                JSON.stringify(JSON.parse(elTa.value), null, 2)
+              );
+              elPretty.innerHTML = `<pre class="pretty-json">${pjson}</pre>`;
+            } catch (err) {
+              elPretty.innerHTML = `error parsing json ${err}`;
+            }
+          }
+        };
+
+        elToggle.addEventListener("click", toggleHandler);
+        // elPretty.addEventListener("click", toggleHandler);
+      });
+    </script>
+  </head>
+  <body>
+    <div id="toggle" class="toggle">Show Pretty</div>
+    <div id="main">
+      <div id="src" class="src">
+        <form id="form">
+          <textarea
+            id="ta"
+            placeholder="put json object here and click 'Show Pretty'"
+          ></textarea>
+        </form>
+      </div>
+      <div id="pretty" class="pretty"></div>
+    </div>
+  </body>
+</html>
