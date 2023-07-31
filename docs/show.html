@@ -123,6 +123,11 @@
 
         elToggle.addEventListener("click", toggleHandler);
         // elPretty.addEventListener("click", toggleHandler);
+        document.body.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+            toggleHandler(event);
+          }
+        });
       });
     </script>
   </head>
@@ -133,7 +138,7 @@
         <form id="form">
           <textarea
             id="ta"
-            placeholder="put json object here and click 'Show Pretty'"
+            placeholder="put json object here and click 'Show Pretty' or Ctrl+Enter or Cmd+Enter"
           ></textarea>
         </form>
       </div>
